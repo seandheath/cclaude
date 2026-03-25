@@ -75,7 +75,7 @@
             \
             --read-only \
             --tmpfs /tmp:rw,nosuid,nodev,size=2g,mode=1777 \
-            --tmpfs /tmp/claude-home:rw,nosuid,nodev,size=256m,mode=700,uid="$(id -u)",gid="$(id -g)" \
+            --mount type=tmpfs,dst=/tmp/claude-home,tmpfs-mode=0700,tmpfs-size=256m \
             \
             -v "''${project_dir}:/''${project_name}:rw" \
             \
