@@ -75,9 +75,7 @@
             \
             --read-only \
             --tmpfs /tmp:rw,nosuid,nodev,size=2g,mode=1777 \
-            \
-            --memory=4g \
-            --pids-limit=512 \
+            --tmpfs /tmp/claude-home:rw,nosuid,nodev,size=256m,mode=700,uid="$(id -u)",gid="$(id -g)" \
             \
             -v "''${project_dir}:/workspace:rw" \
             \
