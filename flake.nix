@@ -40,17 +40,7 @@
 
           # ── Preflight ──────────────────────────────────────────────────────
           if [[ ! -f "$token_file" ]]; then
-            cat >&2 <<EOF
-          cclaude: no token found at $token_file
-
-          First-time setup:
-            1. Run: claude setup-token
-               (or: nix shell nixpkgs#nodejs --command npx @anthropic-ai/claude-code setup-token)
-            2. Save the token:
-                 install -m 600 /dev/stdin "$token_file"
-                 <paste token, then Ctrl-D>
-          EOF
-            exit 1
+            ${cclaude-setup}/bin/cclaude-setup
           fi
 
           if ! ${podman} image exists "$image" 2>/dev/null; then
@@ -114,10 +104,27 @@
           exec ${cclaude}/bin/cclaude bash
         '';
 
+        cclaude-setup = pkgs.writeShellScriptBin "cclaude-setup" ''
+          set -euo pipefail
+
+          token_file="${tokenFile}"
+          mkdir -p "$(dirname "$token_file")"
+
+          # Run setup-token to start the OAuth flow
+          printf 'Starting Claude Code OAuth flow...\n'
+          claude setup-token
+
+          # Prompt user to paste the token
+          printf '\nPaste your OAuth token below, then press Ctrl-D:\n'
+          install -m 600 /dev/stdin "$token_file"
+
+          printf 'Token saved to %s\n' "$token_file"
+        '';
+
       in {
         packages = {
           default = cclaude;
-          inherit cclaude cclaude-build cclaude-update cclaude-shell;
+          inherit cclaude cclaude-build cclaude-update cclaude-shell cclaude-setup;
         };
 
         devShells.default = pkgs.mkShell {
