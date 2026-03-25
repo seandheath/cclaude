@@ -28,6 +28,7 @@ Add to your NixOS or home-manager configuration:
           cclaude.packages.x86_64-linux.cclaude-build
           cclaude.packages.x86_64-linux.cclaude-update
           cclaude.packages.x86_64-linux.cclaude-shell
+          cclaude.packages.x86_64-linux.cclaude-setup
         ];
       }];
     };
@@ -40,6 +41,7 @@ Add to your NixOS or home-manager configuration:
           cclaude.packages.x86_64-linux.cclaude-build
           cclaude.packages.x86_64-linux.cclaude-update
           cclaude.packages.x86_64-linux.cclaude-shell
+          cclaude.packages.x86_64-linux.cclaude-setup
         ];
       }];
     };
@@ -49,20 +51,20 @@ Add to your NixOS or home-manager configuration:
 
 ## Setup
 
+On first run, `cclaude` automatically builds the container image and runs `cclaude-setup` if no token is found. Just run:
+
 ```bash
-# 1. Build the container image
+cclaude
+```
+
+To set up manually:
+
+```bash
+# Build the container image
 cclaude-build
 
-# 2. Get your OAuth token
-#    If you have claude on the host:
-claude setup-token
-#    Otherwise:
-nix shell nixpkgs#nodejs --command npx @anthropic-ai/claude-code setup-token
-
-# 3. Save the token
-mkdir -p ~/.config/cclaude
-install -m 600 /dev/stdin ~/.config/cclaude/token
-# paste token, Ctrl-D
+# Run the OAuth token setup flow
+cclaude-setup
 ```
 
 ## Usage
@@ -80,6 +82,9 @@ cclaude-shell
 
 # Update Claude Code (pulls latest base image and rebuilds)
 cclaude-update
+
+# Re-run OAuth token setup
+cclaude-setup
 ```
 
 ## Security Model
@@ -88,24 +93,26 @@ cclaude-update
 |---------|---------|
 | Capabilities | `--cap-drop=ALL` |
 | Privileges | `--security-opt no-new-privileges:true` |
+| SELinux | `--security-opt label=disable` |
 | Root filesystem | Read-only |
 | User namespace | `--userns=keep-id` |
-| Memory limit | 4 GB |
-| PID limit | 512 |
+| Container user | Non-root (`claude`, UID 1000) |
 | Project mount | Current directory only, read-write |
 | Nix store | Read-only bind mount |
 | Nix daemon | Socket mount (store writes go through host daemon) |
-| Home directory | tmpfs (ephemeral), `.claude` on persistent volume |
+| Home directory | Persistent named volume (`cclaude-home`) |
+| Temp | 2 GB tmpfs, `nosuid,nodev` |
 
 ## How It Works
 
-The container is based on `node:22-bookworm-slim` with Claude Code installed via the official installer. At runtime:
+The container is based on `debian:bookworm-slim` with Claude Code installed via the [official installer](https://claude.ai/install.sh). It runs as a non-root user (`claude`, UID 1000). At runtime:
 
-1. Your current directory is mounted at `/workspace`
+1. Your current directory is mounted at `/<project-name>` (matching the host directory name)
 2. The host `/nix/store` is mounted read-only
 3. The host nix daemon socket is mounted so Claude can run nix commands
-4. `HOME` is tmpfs — all writes are ephemeral except `~/.claude` which persists on a named volume
+4. `HOME` (`/home/claude`) lives on a persistent named volume (`cclaude-home`)
 5. Your OAuth token is passed via environment variable (never written to disk inside the container)
+6. On first run, the image is built automatically and `cclaude-setup` runs if no token exists
 
 ## Development
 
