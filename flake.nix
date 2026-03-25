@@ -28,7 +28,7 @@
 
         cclaude-update = pkgs.writeShellScriptBin "cclaude-update" ''
           set -euo pipefail
-          ${podman} pull docker.io/library/node:22-bookworm-slim
+          ${podman} pull docker.io/library/debian:bookworm-slim
           exec ${cclaude-build}/bin/cclaude-build
         '';
 
