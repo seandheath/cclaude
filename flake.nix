@@ -13,8 +13,6 @@
         podman = "${pkgs.podman}/bin/podman";
         image = "localhost/cclaude:latest";
         tokenFile = "\${HOME}/.config/cclaude/token";
-        configVolume = "cclaude-config";
-
         # Path to container build context in the nix store
         containerContext = "${self}/container";
 
@@ -75,7 +73,6 @@
             \
             --read-only \
             --tmpfs /tmp:rw,nosuid,nodev,size=2g,mode=1777 \
-            --mount type=tmpfs,dst=/tmp/claude-home,tmpfs-mode=0700,tmpfs-size=256m \
             \
             -v "''${project_dir}:/''${project_name}:rw" \
             \
@@ -83,10 +80,7 @@
             -v /nix/var/nix/daemon-socket:/nix/var/nix/daemon-socket \
             -v /nix/var/nix/profiles:/nix/var/nix/profiles:ro \
             \
-            -v ${configVolume}:/tmp/claude-home/.claude:rw,U \
-            \
             -e CLAUDE_CODE_OAUTH_TOKEN="''${token}" \
-            -e CLAUDE_CONFIG_DIR=/tmp/claude-home/.claude \
             -e HOME=/tmp/claude-home \
             -e NIX_REMOTE=daemon \
             -e PATH="/nix/var/nix/profiles/default/bin:/nix/var/nix/profiles/system/sw/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
