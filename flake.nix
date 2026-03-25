@@ -72,7 +72,7 @@
             \
             --read-only \
             --tmpfs /tmp:rw,nosuid,nodev,size=2g,mode=1777 \
-            -v cclaude-home:/home/claude:rw \
+            -v cclaude-home:/home/claude:rw,U \
             \
             -v "''${project_dir}:/''${project_name}:rw" \
             \
