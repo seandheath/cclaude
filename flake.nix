@@ -77,7 +77,7 @@
             --tmpfs /tmp:rw,nosuid,nodev,size=2g,mode=1777 \
             --tmpfs /tmp/claude-home:rw,nosuid,nodev,size=256m,mode=700,uid="$(id -u)",gid="$(id -g)" \
             \
-            -v "''${project_dir}:/workspace:rw" \
+            -v "''${project_dir}:/''${project_name}:rw" \
             \
             -v /nix/store:/nix/store:ro \
             -v /nix/var/nix/daemon-socket:/nix/var/nix/daemon-socket \
@@ -93,7 +93,7 @@
             -e TERM="''${TERM:-xterm-256color}" \
             -e COLORTERM="''${COLORTERM:-truecolor}" \
             \
-            -w /workspace \
+            -w "/''${project_name}" \
             "$image" \
             "$@"
         '';
