@@ -65,7 +65,6 @@
             --name "cclaude-''${project_name}" \
             \
             --userns=keep-id \
-            --user "$(id -u):$(id -g)" \
             \
             --cap-drop=ALL \
             --security-opt no-new-privileges:true \
@@ -73,6 +72,7 @@
             \
             --read-only \
             --tmpfs /tmp:rw,nosuid,nodev,size=2g,mode=1777 \
+            -v cclaude-home:/home/claude:rw \
             \
             -v "''${project_dir}:/''${project_name}:rw" \
             \
@@ -81,9 +81,8 @@
             -v /nix/var/nix/profiles:/nix/var/nix/profiles:ro \
             \
             -e CLAUDE_CODE_OAUTH_TOKEN="''${token}" \
-            -e HOME=/tmp/claude-home \
+            -e HOME=/home/claude \
             -e NIX_REMOTE=daemon \
-            -e PATH="/nix/var/nix/profiles/default/bin:/nix/var/nix/profiles/system/sw/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
             -e TERM="''${TERM:-xterm-256color}" \
             -e COLORTERM="''${COLORTERM:-truecolor}" \
             \

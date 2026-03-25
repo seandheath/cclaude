@@ -1,10 +1,10 @@
 #!/bin/sh
 set -eu
 
-# ~/.claude.json must exist at HOME root (separate from CLAUDE_CONFIG_DIR)
-# to bypass the onboarding wizard. Re-created on each run since HOME is tmpfs.
-CLAUDE_ACCOUNT_FILE="${HOME}/.claude.json"
-mkdir -p "$(dirname "${CLAUDE_ACCOUNT_FILE}")"
-printf '{"hasCompletedOnboarding":true}\n' > "${CLAUDE_ACCOUNT_FILE}"
+# Add claude install path and nix profile paths
+export PATH="/home/claude/.local/bin:/nix/var/nix/profiles/default/bin:/nix/var/nix/profiles/system/sw/bin:${PATH}"
+
+# Skip onboarding wizard
+printf '{"hasCompletedOnboarding":true}\n' > "${HOME}/.claude.json"
 
 exec "$@"

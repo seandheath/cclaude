@@ -21,8 +21,13 @@ RUN mkdir -p /etc/nix \
       'accept-flake-config = true' \
     > /etc/nix/nix.conf
 
-# Install Claude Code via official installer
+# Create non-root user for claude installation
+RUN useradd -m -u 1000 claude
+
+# Install Claude Code as non-root user (~/.local/bin/claude)
+USER claude
 RUN curl -fsSL https://claude.ai/install.sh | bash
+USER root
 
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod 755 /usr/local/bin/entrypoint.sh
