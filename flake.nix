@@ -85,7 +85,7 @@
             -v /nix/var/nix/daemon-socket:/nix/var/nix/daemon-socket \
             -v /nix/var/nix/profiles:/nix/var/nix/profiles:ro \
             \
-            -v ${configVolume}:/tmp/claude-home/.claude:rw \
+            -v ${configVolume}:/tmp/claude-home/.claude:rw,U \
             \
             -e CLAUDE_CODE_OAUTH_TOKEN="''${token}" \
             -e CLAUDE_CONFIG_DIR=/tmp/claude-home/.claude \
