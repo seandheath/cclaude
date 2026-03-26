@@ -24,6 +24,12 @@
 **Rationale:** Zero cold-start for nix operations. Store writes go through the host daemon — Claude can't corrupt store paths directly. No need to run a nix daemon inside the container.
 **Alternatives considered:** Running nix daemon inside container (complex, wasteful), nix store bind mount rw (security risk).
 
+## 2026-03-26 — Dedicated SSH Key Mount
+
+**Decision:** Mount `~/.ssh/id_cclaude` read-only into the container at `/home/claude/.ssh/id_cclaude`. Set `GIT_SSH_COMMAND` to use it with `StrictHostKeyChecking=accept-new`.
+**Rationale:** Dedicated key scoped only to cclaude's needs. Avoids SSH agent forwarding which would expose all agent-loaded keys. Simpler than running a separate agent instance.
+**Alternatives considered:** SSH agent forwarding (exposes all loaded keys, breaks host workflow), no SSH access (limits git to HTTPS only).
+
 ## 2026-03-26 — CLAUDE.md Mounting Strategy
 
 **Decision:** Three-tier CLAUDE.md loading: container policy baked into image at `/etc/claude-code/CLAUDE.md` (managed policy path), host `~/.claude/CLAUDE.md` bind-mounted read-only for user instructions, project CLAUDE.md available via project mount.

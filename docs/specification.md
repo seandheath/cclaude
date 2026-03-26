@@ -33,7 +33,8 @@ OAuth token stored at `~/.config/cclaude/token` (mode 600). Passed into the cont
 - `/tmp` as tmpfs (2GB, nosuid, nodev)
 - Only the current project directory is mounted read-write
 - Host nix store mounted read-only
-- No access to SSH keys, GPG, or host home directory (beyond explicitly mounted files)
+- Dedicated SSH key (`~/.ssh/id_cclaude`) mounted read-only for git operations
+- No access to GPG keys or host home directory (beyond explicitly mounted files)
 
 ## CLAUDE.md Instructions
 
@@ -47,6 +48,7 @@ Claude Code loads instructions from three scopes (all concatenated):
 
 - `cclaude-home` — persistent named volume at `/home/claude` for Claude credentials, settings, and home directory state
 - Host `~/.claude/CLAUDE.md` — bind-mounted read-only at `/home/claude/.claude/CLAUDE.md` (if present)
+- Host `~/.ssh/id_cclaude` — bind-mounted read-only at `/home/claude/.ssh/id_cclaude` (if present)
 
 ## CLI Commands
 

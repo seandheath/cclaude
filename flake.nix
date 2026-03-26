@@ -75,6 +75,12 @@
             claudemd_args=(-v "''${HOME}/.claude/CLAUDE.md:/home/claude/.claude/CLAUDE.md:ro")
           fi
 
+          # Mount dedicated SSH key for git operations inside container
+          sshkey_args=()
+          if [[ -f "''${HOME}/.ssh/id_cclaude" ]]; then
+            sshkey_args=(-v "''${HOME}/.ssh/id_cclaude:/home/claude/.ssh/id_cclaude:ro" -e GIT_SSH_COMMAND="ssh -i /home/claude/.ssh/id_cclaude -o StrictHostKeyChecking=accept-new")
+          fi
+
           exec ${podman} run -it --rm \
             --name "cclaude-''${project_name}" \
             \
@@ -102,6 +108,7 @@
             \
             "''${gitconfig_args[@]}" \
             "''${claudemd_args[@]}" \
+            "''${sshkey_args[@]}" \
             \
             -w "/''${project_name}" \
             "$image" \

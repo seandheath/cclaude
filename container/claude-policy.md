@@ -6,7 +6,7 @@ You are running inside the `cclaude` container — an isolated rootless Podman s
 
 - **Root filesystem is read-only.** You cannot install packages with apt or modify system files.
 - **All capabilities are dropped.** No privileged operations (mount, chown, setuid, etc.).
-- **No network restrictions**, but no SSH keys or GPG keys are available.
+- **No network restrictions.** A dedicated SSH key is mounted read-only at `/home/claude/.ssh/id_cclaude` (if present on host). No GPG keys are available.
 - **No access to the host home directory** beyond what is explicitly mounted.
 
 ## Filesystem Layout
@@ -22,7 +22,7 @@ You are running inside the `cclaude` container — an isolated rootless Podman s
 ## Available Tools
 
 - **Nix:** `nix develop`, `nix build`, `nix flake check` — connected to host nix daemon via socket
-- **Git:** Full git operations within the project directory
+- **Git:** Full git operations within the project directory. `GIT_SSH_COMMAND` is pre-configured to use the mounted SSH key for git-over-SSH
 - **ripgrep:** Available as `rg`
 - **curl:** Available for network requests
 
