@@ -75,10 +75,10 @@
             claudemd_args=(-v "''${HOME}/.claude/CLAUDE.md:/home/claude/.claude/CLAUDE.md:ro")
           fi
 
-          # Mount dedicated SSH key for git operations inside container
-          sshkey_args=()
-          if [[ -f "''${HOME}/.ssh/id_cclaude" ]]; then
-            sshkey_args=(-v "''${HOME}/.ssh/id_cclaude:/home/claude/.ssh/id_cclaude:ro" -e GIT_SSH_COMMAND="ssh -i /home/claude/.ssh/id_cclaude -o StrictHostKeyChecking=accept-new")
+          # Forward SSH agent for git operations inside container
+          sshagent_args=()
+          if [[ -n "''${SSH_AUTH_SOCK:-}" ]]; then
+            sshagent_args=(-v "''${SSH_AUTH_SOCK}:/run/ssh-agent.sock:ro" -e SSH_AUTH_SOCK=/run/ssh-agent.sock)
           fi
 
           exec ${podman} run -it --rm \
@@ -108,7 +108,7 @@
             \
             "''${gitconfig_args[@]}" \
             "''${claudemd_args[@]}" \
-            "''${sshkey_args[@]}" \
+            "''${sshagent_args[@]}" \
             \
             -w "/''${project_name}" \
             "$image" \
