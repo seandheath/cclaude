@@ -61,6 +61,14 @@
           project_name="$(basename "$project_dir")"
           token="$(< "$token_file")"
 
+          # Resolve host git config for author attribution inside container
+          gitconfig_args=()
+          if [[ -f "''${HOME}/.gitconfig" ]]; then
+            gitconfig_args=(-v "''${HOME}/.gitconfig:/run/gitconfig:ro" -e GIT_CONFIG_GLOBAL=/run/gitconfig)
+          elif [[ -f "''${HOME}/.config/git/config" ]]; then
+            gitconfig_args=(-v "''${HOME}/.config/git/config:/run/gitconfig:ro" -e GIT_CONFIG_GLOBAL=/run/gitconfig)
+          fi
+
           exec ${podman} run -it --rm \
             --name "cclaude-''${project_name}" \
             \
@@ -85,6 +93,8 @@
             -e NIX_REMOTE=daemon \
             -e TERM="''${TERM:-xterm-256color}" \
             -e COLORTERM="''${COLORTERM:-truecolor}" \
+            \
+            "''${gitconfig_args[@]}" \
             \
             -w "/''${project_name}" \
             "$image" \
