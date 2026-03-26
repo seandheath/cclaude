@@ -33,12 +33,20 @@ OAuth token stored at `~/.config/cclaude/token` (mode 600). Passed into the cont
 - `/tmp` as tmpfs (2GB, nosuid, nodev)
 - Only the current project directory is mounted read-write
 - Host nix store mounted read-only
-- No access to SSH keys, GPG, home directory, or `/etc`
+- No access to SSH keys, GPG, or host home directory (beyond explicitly mounted files)
+
+## CLAUDE.md Instructions
+
+Claude Code loads instructions from three scopes (all concatenated):
+
+1. **Managed policy** (`/etc/claude-code/CLAUDE.md`) — highest precedence. Baked into the container image from `container/claude-policy.md`. Contains container-specific environment constraints.
+2. **Project** (`./CLAUDE.md`) — available via the mounted project directory.
+3. **User** (`~/.claude/CLAUDE.md`) — bind-mounted read-only from host `~/.claude/CLAUDE.md` (conditional: only if file exists on host).
 
 ## Volume Layout
 
-- `cclaude-config` — persistent named volume at `/tmp/claude-home/.claude` for Claude credentials and settings
-- `HOME=/tmp/claude-home` — tmpfs, ephemeral per run (except the `.claude` volume mount)
+- `cclaude-home` — persistent named volume at `/home/claude` for Claude credentials, settings, and home directory state
+- Host `~/.claude/CLAUDE.md` — bind-mounted read-only at `/home/claude/.claude/CLAUDE.md` (if present)
 
 ## CLI Commands
 

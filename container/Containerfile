@@ -32,6 +32,10 @@ USER root
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod 755 /usr/local/bin/entrypoint.sh
 
+# Container-specific Claude Code instructions (managed policy — highest precedence)
+RUN mkdir -p /etc/claude-code
+COPY claude-policy.md /etc/claude-code/CLAUDE.md
+
 USER claude
 WORKDIR /workspace
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

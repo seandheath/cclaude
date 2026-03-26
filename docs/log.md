@@ -24,6 +24,12 @@
 **Rationale:** Zero cold-start for nix operations. Store writes go through the host daemon — Claude can't corrupt store paths directly. No need to run a nix daemon inside the container.
 **Alternatives considered:** Running nix daemon inside container (complex, wasteful), nix store bind mount rw (security risk).
 
+## 2026-03-26 — CLAUDE.md Mounting Strategy
+
+**Decision:** Three-tier CLAUDE.md loading: container policy baked into image at `/etc/claude-code/CLAUDE.md` (managed policy path), host `~/.claude/CLAUDE.md` bind-mounted read-only for user instructions, project CLAUDE.md available via project mount.
+**Rationale:** Claude Code natively supports managed policy, project, and user instruction scopes. Managed policy has highest precedence and is ideal for container-specific constraints (read-only filesystem, no apt, use nix for packages). Bind-mounting the host user CLAUDE.md preserves personal preferences without copying or duplicating config.
+**Alternatives considered:** Mounting entire `~/.claude/` directory (exposes credentials/settings, conflicts with cclaude-home volume), concatenating files in entrypoint (fragile, loses scope separation), project-level CLAUDE.md only (no way to express container-specific constraints separately).
+
 ## 2026-03-25 — Tmpfs HOME with Persistent .claude Volume
 
 **Decision:** `HOME=/tmp/claude-home` on tmpfs, with `cclaude-config` named volume mounted at `$HOME/.claude`.

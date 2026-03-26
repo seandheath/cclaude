@@ -69,6 +69,12 @@
             gitconfig_args=(-v "''${HOME}/.config/git/config:/run/gitconfig:ro" -e GIT_CONFIG_GLOBAL=/run/gitconfig)
           fi
 
+          # Mount host CLAUDE.md for global user instructions inside container
+          claudemd_args=()
+          if [[ -f "''${HOME}/.claude/CLAUDE.md" ]]; then
+            claudemd_args=(-v "''${HOME}/.claude/CLAUDE.md:/home/claude/.claude/CLAUDE.md:ro")
+          fi
+
           exec ${podman} run -it --rm \
             --name "cclaude-''${project_name}" \
             \
@@ -95,6 +101,7 @@
             -e COLORTERM="''${COLORTERM:-truecolor}" \
             \
             "''${gitconfig_args[@]}" \
+            "''${claudemd_args[@]}" \
             \
             -w "/''${project_name}" \
             "$image" \
