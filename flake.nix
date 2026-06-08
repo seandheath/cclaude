@@ -58,7 +58,13 @@
 
           # ── Launch ─────────────────────────────────────────────────────────
           project_dir="$(pwd)"
-          project_name="$(basename "$project_dir")"
+          # Podman container names must match [a-zA-Z0-9][a-zA-Z0-9_.-]*
+          # (https://docs.podman.io/en/latest/markdown/podman-run.1.html#name-name).
+          # The basename is also used as the in-container mount point and
+          # workdir, so map anything outside that set (spaces, etc.) to '-'.
+          # Trailing '-' in the tr set is literal, \n is kept so the trailing
+          # newline from basename isn't replaced.
+          project_name="$(basename "$project_dir" | tr -c 'a-zA-Z0-9_.\n-' '-')"
           token="$(< "$token_file")"
 
           # Resolve host git config for author attribution inside container
